@@ -10,6 +10,7 @@ model_bundle = joblib.load(MODEL_PATH)
 model = model_bundle["model"]
 scaler = model_bundle["scaler"]
 
+
 def predict(features: dict) -> float:
     """
     输入: dict -> {feature_name: value}
@@ -26,3 +27,4 @@ def predict(features: dict) -> float:
 
     pred = model.predict(X_scaled)[0]
     return float(pred)
+

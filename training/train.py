@@ -52,3 +52,5 @@ metrics = {"rmse": rmse, "model": "LinearRegression", "version": "v0.1"}
 with open(METRICS_PATH, "w") as f:
     json.dump(metrics, f, indent=2)
 print(f"Model and metrics saved to {MODEL_DIR}")
+
+
