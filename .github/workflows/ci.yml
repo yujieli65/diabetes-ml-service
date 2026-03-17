@@ -32,13 +32,7 @@ jobs:
     - name: Lint code
       run: |
         flake8 app training
-
-    # 5️⃣ 跑测试
-    - name: Run tests
-      run: |
-        pytest
-
-    # 6️⃣ 训练模型（smoke test）
+  # 6️⃣ 训练模型（smoke test）
     - name: Train model
       run: |
         python training/train.py
@@ -49,3 +43,10 @@ jobs:
       with:
         name: model-artifacts
         path: model/
+        
+    # 5️⃣ 跑测试
+    - name: Run tests
+      run: |
+        pytest
+
+  
