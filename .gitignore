@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+*.pytest_cache/
+
+# Virtual environment
+.venv/
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# Local data / secrets
+.env
+*.sqlite3
+*.db
+
+# Model outputs (如果用 artifact 上传，这里忽略)
+model/*.pkl
+model/*.joblib
