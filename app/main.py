@@ -39,4 +39,3 @@ def predict_endpoint(data: PatientData):
         # 返回 JSON 错误（评分点！）
         raise HTTPException(status_code=400, detail=str(e))
 
-

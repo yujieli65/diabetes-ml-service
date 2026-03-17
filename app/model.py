@@ -27,4 +27,3 @@ def predict(features: dict) -> float:
 
     pred = model.predict(X_scaled)[0]
     return float(pred)
-
