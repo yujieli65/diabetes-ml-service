@@ -1,16 +1,17 @@
 name: Release
 
+# 只在 push v开头的 tag 时触发
 on:
   push:
     tags:
-      - 'v*'  # 只在 push v 开头的 tag 时触发
+      - 'v*'
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout 代码
+      # 1️⃣ 拉取代码
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -25,46 +26,41 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install joblib uvicorn fastapi
 
-      # 4️⃣ 训练模型
+      # 4️⃣ 训练模型（smoke test）
       - name: Train model
         run: python training/train.py
 
-      # 5️⃣ GHCR 登录
-      - name: GHCR Login
-        run: echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u yujieli65 --password-stdin
+      # 5️⃣ Docker 登录 GHCR（用你在 Secrets 里添加的 GHCR_PAT）
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u yujieli65 --password-stdin
       # 6️⃣ 构建 Docker 镜像
       - name: Build Docker image
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/diabetes-api:${{ github.ref_name }}
+          IMAGE_NAME=ghcr.io/yujieli65/diabetes-api:${{ github.ref_name }}
           docker build -t $IMAGE_NAME .
 
       # 7️⃣ 容器 smoke test
       - name: Test Docker container
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/diabetes-api:${{ github.ref_name }}
+          IMAGE_NAME=ghcr.io/yujieli65/diabetes-api:${{ github.ref_name }}
           docker run -d -p 8000:8000 --name test_container $IMAGE_NAME
-          for i in {1..10}; do
-            sleep 2
-            if curl -f http://localhost:8000/health; then
-              echo "Service is up!"
-              break
-            fi
-          done
-          docker logs test_container
+          # 等 5 秒再测试 /health
+          sleep 5
+          curl -f http://localhost:8000/health
           docker stop test_container
           docker rm test_container
 
-      # 8️⃣ 推送 Docker 镜像到 GHCR
+      # 8️⃣ 推送到 GHCR
       - name: Push Docker image
         run: |
           IMAGE_NAME=ghcr.io/yujieli65/diabetes-api:${{ github.ref_name }}
           docker push $IMAGE_NAME
+
       # 9️⃣ 创建 GitHub Release
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MY_PAT }}
