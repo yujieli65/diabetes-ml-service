@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from app.model import predict
 
+
 app = FastAPI(title="Diabetes ML Service", version="v0.2")
 
 
@@ -28,6 +29,7 @@ def health():
         "model_version": "v0.2"
     }
 
+
 # 3️⃣ 预测接口
 @app.post("/predict")
 def predict_endpoint(data: PatientData):
@@ -38,5 +40,6 @@ def predict_endpoint(data: PatientData):
     except Exception as e:
         # 返回 JSON 错误（评分点！）
         raise HTTPException(status_code=400, detail=str(e))
+
     
     
