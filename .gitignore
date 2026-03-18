@@ -18,6 +18,3 @@ __pycache__/
 *.sqlite3
 *.db
 
-# Model outputs (如果用 artifact 上传，这里忽略)
-model/*.pkl
-model/*.joblib
