@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 只在 push v开头的 tag 时触发
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ 拉取代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2️⃣ 设置 Docker 登录 GHCR
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 3️⃣ 构建 Docker 镜像
+      - name: Build Docker image
+        run: |
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/diabetes-api:${GITHUB_REF_NAME}
+          docker build -t $IMAGE_NAME .
+
+      # 4️⃣ 容器 smoke test
+      - name: Test Docker container
+        run: |
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/diabetes-api:${GITHUB_REF_NAME}
+          docker run -d -p 8000:8000 --name test_container $IMAGE_NAME
+          sleep 5
+          curl -f http://localhost:8000/health
+          docker stop test_container
+          docker rm test_container
+
+      # 5️⃣ 推送到 GHCR
+      - name: Push Docker image
+        run: |
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/diabetes-api:${GITHUB_REF_NAME}
+          docker push $IMAGE_NAME
+
+      # 6️⃣ 创建 GitHub Release
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
