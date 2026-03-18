@@ -32,13 +32,8 @@ jobs:
         run: python training/train.py
 
       # 5️⃣ GHCR 登录
-      - name: Log in to GHCR
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: GHCR Login
+        run: echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u yujieli65 --password-stdin
       # 6️⃣ 构建 Docker 镜像
       - name: Build Docker image
         run: |
