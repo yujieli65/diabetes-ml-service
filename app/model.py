@@ -8,6 +8,7 @@ SCALER_PATH = os.path.join("model", "scaler.pkl")
 model = joblib.load(MODEL_PATH)
 scaler = joblib.load(SCALER_PATH)
 
+
 def predict(features: dict):
     """
     输入字典，输出连续 risk score 和高风险 flag
