@@ -64,9 +64,8 @@ jobs:
       # 8️⃣ 推送 Docker 镜像到 GHCR
       - name: Push Docker image
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/diabetes-api:${{ github.ref_name }}
+          IMAGE_NAME=ghcr.io/yujieli65/diabetes-api:${{ github.ref_name }}
           docker push $IMAGE_NAME
-
       # 9️⃣ 创建 GitHub Release
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
