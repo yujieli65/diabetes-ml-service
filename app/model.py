@@ -1,29 +1,36 @@
-# app/model.py
 import joblib
+import os
 import numpy as np
-from pathlib import Path
 
-MODEL_PATH = Path(__file__).resolve().parent.parent / "model" / "model.pkl"
+MODEL_PATH = os.path.join("model", "model.pkl")
+SCALER_PATH = os.path.join("model", "scaler.pkl")
 
-# 全局加载（避免每次请求重复加载）
-model_bundle = joblib.load(MODEL_PATH)
-model = model_bundle["model"]
-scaler = model_bundle["scaler"]
+model = joblib.load(MODEL_PATH)
+scaler = joblib.load(SCALER_PATH)
 
-
-def predict(features: dict) -> float:
+def predict(features: dict):
     """
-    输入: dict -> {feature_name: value}
-    输出: float prediction
+    输入字典，输出连续 risk score 和高风险 flag
     """
-    # 保证顺序一致（非常重要）
-    feature_order = [
-        "age", "sex", "bmi", "bp",
-        "s1", "s2", "s3", "s4", "s5", "s6"
-    ]
+    # 按正确顺序构建矩阵
+    X = np.array([[
+        features["age"],
+        features["sex"],
+        features["bmi"],
+        features["bp"],
+        features["s1"],
+        features["s2"],
+        features["s3"],
+        features["s4"],
+        features["s5"],
+        features["s6"],
+    ]])
 
-    X = np.array([[features[f] for f in feature_order]])
     X_scaled = scaler.transform(X)
+    y_pred = model.predict(X_scaled)[0]
 
-    pred = model.predict(X_scaled)[0]
-    return float(pred)
+    # 把 numpy 类型转成原生 Python 类型
+    prediction = float(y_pred)
+    high_risk = bool(y_pred > 140)
+
+    return {"prediction": prediction, "high_risk": high_risk}

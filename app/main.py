@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from app.model import predict
 
-app = FastAPI(title="Diabetes ML Service", version="v0.1")
+app = FastAPI(title="Diabetes ML Service", version="v0.2")
 
 
 # 1️⃣ 定义输入 schema（自动校验）
@@ -25,7 +25,7 @@ class PatientData(BaseModel):
 def health():
     return {
         "status": "ok",
-        "model_version": "v0.1"
+        "model_version": "v0.2"
     }
 
 
@@ -33,8 +33,9 @@ def health():
 @app.post("/predict")
 def predict_endpoint(data: PatientData):
     try:
-        prediction = predict(data.dict())
-        return {"prediction": prediction}
+        result = predict(data.dict())
+        # result 里可以是 float 或 dict 包含 high-risk flag
+        return result
     except Exception as e:
         # 返回 JSON 错误（评分点！）
         raise HTTPException(status_code=400, detail=str(e))
